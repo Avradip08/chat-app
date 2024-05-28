@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react"
+import {  useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { v4 as uuid } from "uuid";
 
-const Landing = ({messages,setMessages}) =>{
+const Landing = () =>{
     const [joinRoomId,setJoinRoomId]=useState('')
     const [createRoomId,setCreateRoomId]=useState('')
     const navigate = useNavigate()
 
     return (
-        <div className="m=5">
+        <div className="m-5">
             <div className="flex justify-center my-2">
                 <h1 className="text-2xl font-extrabold text-slate-600">Welcome to group chat</h1>
             </div>

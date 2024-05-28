@@ -1,6 +1,4 @@
 import { randomUUID } from "crypto";
-import { User } from "./SocketManager";
-
 
 export class Message {
     private id : string;
