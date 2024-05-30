@@ -3,36 +3,21 @@ import { types } from "../utils/messagesTypes"
 import useWebSocket from "react-use-websocket"
 import { WS_URL } from "../utils/constants"
 
-const Messages = ({userId})=>{
+const Messages = ({roomId})=>{
     
     const [messages,setMessages] = useState([])
-    const [messageUserIds,setMessageUserIds] = useState([])
-    const {lastJsonMessage} = useWebSocket(WS_URL,{
+    const {lastJsonMessage} = useWebSocket(`${WS_URL}?roomId=${roomId}&token=${localStorage.getItem('token')}`,{
         share:true
     })
     const handleMessage = (message)=>{
         if(message.type === types.USER_JOINED){
-            console.log()
-            setMessages(message.payload.messages)
-            setMessageUserIds([message.payload.userId])
+            console.log(message)
+            setMessages(prev=>[...prev,message.payload.userName+" "+message.payload.message])
         }
         if(message.type === types.USER_LEFT){
-            setMessages(prev=>{
-                const newMessage = message.payload.userId + " : " + message.payload.message
-                return [
-                    ...prev,
-                    newMessage
-                ]
-            })
+           
         }
         if(message.type === types.MESSAGE_RECEIVED){
-            setMessages(prev=>{
-                const newMessage = message.payload.userId + " : " +  message.payload.message
-                return [
-                    ...prev,
-                    newMessage
-                ]
-            })
         }
     }
     useEffect(()=>{

@@ -11,9 +11,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const db_1 = require("../db");
+const apiMiddleware_1 = require("../middlewares/apiMiddleware");
 const apiRouter = (0, express_1.Router)();
 //adding middleware for all api routes
-// apiRouter.all(`/*`,apiMiddleWare as any)
+apiRouter.all(`/*`, apiMiddleware_1.apiMiddleWare);
 //get authentication details
 apiRouter.get("/me", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(req.body);
@@ -22,7 +23,9 @@ apiRouter.get("/me", (req, res) => __awaiter(void 0, void 0, void 0, function* (
 }));
 //get all chats of a user
 apiRouter.get("/chats", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userName } = req.body;
+    const { user } = req.body;
+    const { userName } = user;
+    console.log(userName);
     try {
         const user = yield db_1.db.user.findFirst({
             where: {
@@ -32,28 +35,73 @@ apiRouter.get("/chats", (req, res) => __awaiter(void 0, void 0, void 0, function
                 rooms: true
             }
         });
-        res.status(200).json({ rooms: user === null || user === void 0 ? void 0 : user.rooms });
+        return res.status(200).json({ rooms: user === null || user === void 0 ? void 0 : user.rooms });
     }
     catch (e) {
-        res.status(404).send({ message: "error occured" });
+        return res.status(404).send({ message: "error occured" });
     }
 }));
 //get all messages in a chat
 apiRouter.get(`/:roomId/messages`, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { roomId } = req.params;
-        const room = yield db_1.db.room.findFirst({
+        const messages = yield db_1.db.message.findMany({
             where: {
-                id: roomId
+                roomId
             },
-            include: {
-                messages: true
-            }
+            orderBy: {
+                id: 'asc',
+            },
         });
-        res.status(200).json({ messages: room === null || room === void 0 ? void 0 : room.messages });
+        return res.status(200).json({ messages });
     }
     catch (e) {
-        res.status(404).json({ message: "error ocurred" });
+        return res.status(404).json({ message: "error ocurred" });
+    }
+}));
+//check if room id exists in db
+apiRouter.post('/roomExists', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { roomId } = req.body;
+    console.log(roomId);
+    try {
+        let roomExists = false;
+        const room = yield db_1.db.room.findUnique({
+            where: {
+                id: roomId
+            }
+        });
+        console.log(room);
+        if (room !== null) {
+            roomExists = true;
+        }
+        res.status(200).json({ roomExists });
+    }
+    catch (e) {
+        console.log(e);
+        res.status(404).json({ message: "error occured" });
+    }
+}));
+//check if the user is currently active in the room
+apiRouter.post('/userActive', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { roomId } = req.body;
+    const { user } = req.body;
+    const { userName } = user;
+    try {
+        let userActive = false;
+        const user = yield db_1.db.userToRoom.findUnique({
+            where: {
+                userName_roomId: {
+                    userName, roomId
+                }
+            }
+        });
+        if ((user === null || user === void 0 ? void 0 : user.active) === true) {
+            userActive = true;
+        }
+        res.status(200).json({ userActive });
+    }
+    catch (e) {
+        res.status(404).json({ message: "error occured" });
     }
 }));
 exports.default = apiRouter;

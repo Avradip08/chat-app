@@ -2,6 +2,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil"
 import { userAtom } from "../store/user"
 import Avatar from 'react-avatar';
 import { useNavigate } from "react-router";
+import { useEffect } from "react";
 
 const Navbar = () =>{
     const user = useRecoilValue(userAtom)
@@ -13,7 +14,7 @@ const Navbar = () =>{
                 <div className="font-bold text-2xl" onClick={()=>{
                     navigate("/")
                 }}>Chatty</div>
-                {   user.userName!=='' ?
+                {   user.userName!==null ?
                     <div className="flex gap-2">
                         <div className="font-light text-lg"><Avatar name={user.userName} size="35" round={true} textSizeRatio={1.25} color="black"/></div>
                         <div className="flex flex-col justify-center items-center">
@@ -21,7 +22,7 @@ const Navbar = () =>{
                             onClick={()=>{
                                 localStorage.setItem("token",null)
                                 setUser({
-                                    userName : ''
+                                    userName : null
                                 })
                                 navigate("/")
                             }}>Logout</button>

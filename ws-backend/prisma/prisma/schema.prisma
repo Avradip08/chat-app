@@ -14,22 +14,33 @@ datasource db {
 }
 
 model User {
-  id       String    @id @unique @default(uuid())
-  userName String    @unique
+  id       String       @id @unique @default(uuid())
+  userName String       @unique
   email    String
   password String
-  rooms    Room[]
+  rooms    UserToRoom[]
   messages Message[]
 }
 
 model Room {
-  id       String    @id
-  users    User[]
+  id       String       @id
+  name     String?
+  users    UserToRoom[]
   messages Message[]
 }
 
+model UserToRoom {
+  user     User    @relation(fields: [userName], references: [userName])
+  userName String
+  room     Room    @relation(fields: [roomId], references: [id])
+  roomId   String
+  active   Boolean
+
+  @@id([userName, roomId])
+}
+
 model Message {
-  id        String   @id @unique @default(uuid())
+  id        Int      @id @unique @default(autoincrement())
   type      String
   text      String
   timeStamp DateTime @default(now())

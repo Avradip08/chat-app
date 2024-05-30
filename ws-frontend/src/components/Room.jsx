@@ -8,8 +8,7 @@ import { types } from "../utils/messagesTypes"
 
 const Room = () => {
     const {type,id} = useParams()
-    const [userId,setUserId] = useState('')
-    const {readyState,sendJsonMessage,lastJsonMessage} = useWebSocket(WS_URL,{
+    const {readyState,sendJsonMessage} = useWebSocket(`${WS_URL}?roomId=${id}&token=${localStorage.getItem('token')}`,{
         share:true
     })
     useEffect(()=>{
@@ -17,16 +16,10 @@ const Room = () => {
         if(type === "join"){
             data = {
                 type: types.JOIN_ROOM,
-                payload : {
-                    roomId : id
-                }
             }
         }else if(type === "create"){
             data = {
                 type: types.CREATE_ROOM,
-                payload : {
-                    roomId : id
-                }
             }
         }
         if(readyState===ReadyState.OPEN)
@@ -39,7 +32,7 @@ const Room = () => {
     return (
         <div className="">
             <div className="flex justify-center">
-                <Messages userId={userId}/>
+                <Messages roomId={id}/>
             </div>
             <div className="flex justify-center">
                 <Chat roomId={id}/>

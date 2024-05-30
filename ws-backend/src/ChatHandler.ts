@@ -1,98 +1,208 @@
-import { Chat } from "./Chat";
-import { SocketManager, User } from "./SocketManager";
+import { SocketManager, User, Message } from "./SocketManager";
 import { types } from "./message";
 import { WebSocket } from "ws";
+import { db } from "./db";
+import { create } from "domain";
 
-const chats : Chat[] = []
-let users : User[] = []
-
-export function ChatManager(socket : WebSocket){
+export function ChatManager(socket : WebSocket, userName : string, roomId:string){
     socket.on("message",(data)=>{
-        handleMessage(data.toString(),socket)
+        handleMessage(data.toString(),socket,userName,roomId);
     })
     socket.on("close",()=>{
-        handleDisconnect(socket)
+        handleDisconnect(userName,roomId);
     })
 }
 
-const handleMessage = (data : string, socket : WebSocket)=>{
-    const message = JSON.parse(data)
-    console.log(message)
+const handleMessage = async (data : string, socket : WebSocket, userName:string, roomId:string)=>{
+    const message = JSON.parse(data);
+    console.log(Date.now());
+    console.log(message);
     if(message.type === types.CREATE_ROOM){
-        // console.log("user created room")
-        if(users.find((us)=>us.getSocket()===socket)){
-            console.log("user already exists")
-            return
-        }
-        const chat = new Chat (message.payload.roomId)
-        chats.push(chat)
-        const user = new User(socket)
-        users.push(user)
-        chat.addMessage(`${user.userId} has joined the chat`,'join',user.userId)
-        SocketManager.getInstance().addUser(chat.getRoomId(),user)
-        const res = {
-            type : types.MESSAGE_RECEIVED,
-            payload: {
-                userId : user.userId,
-                message : 'has joined the chat'
-            }
-        }
-        SocketManager.getInstance().broadcast(chat.getRoomId(),JSON.stringify(res))
-    }
-    if(message.type === types.JOIN_ROOM){
-        // console.log("user joined room")
-        if(users.find((us)=>us.getSocket()===socket)){
-            console.log("user already exists")
-            return
-        }
-        const chat = chats.find(ch=>ch.getRoomId() === message.payload.roomId)
-        if(!chat){
-            console.log('room does not exist')
-            return
-        }
-        const user = new User(socket)
-        users.push(user)
-        chat.addMessage(`${user.userId} has joined the chat`,'join',user.userId)
-        SocketManager.getInstance().addUser(chat.getRoomId(),user)
-        const res = {
-            type : types.USER_JOINED,
-            payload: {
-                userId : user.userId,
-                messages : chat.getMessages().map(m=>m.getText()) || []
-            }
-        }
-        SocketManager.getInstance().broadcast(chat.getRoomId(),JSON.stringify(res))
-    }
-    if(message.type === types.SEND_MESSAGE){
-        const chat = chats.find(ch=>ch.getRoomId() === message.payload.roomId)
-        if(chat){
-            const user = users.find(us=>us.getSocket()===socket)
-            if(user){
-                chat.addMessage(message.payload.message,'message',user.userId)
-                const res = {
-                    type : types.MESSAGE_RECEIVED,
-                    payload: {
-                        userId : user.userId,
-                        message : message.payload.message
+        console.log("create room called");
+        const user = new User(userName,socket);
+        //add room to user's list of rooms in db
+        try{
+            await db.user.update({
+                where:{
+                    userName
+                },
+                data:{
+                    rooms : { 
+                        create:{
+                            active : true,
+                            room : { create : {id : roomId } }
+                        }
                     }
                 }
-                SocketManager.getInstance().broadcast(chat.getRoomId(),JSON.stringify(res))
-            }
+            });
+        }catch(e){
+
         }
+        //add user to the socket manager
+        SocketManager.getInstance().addUser(roomId,user);
+        
+        const res = new Message(types.USER_JOINED,'has joined the chat',userName);
+        
+        //add message to the room's list of messages in db
+        try {
+            await db.room.update({
+                where:{
+                    id:roomId
+                },
+                data:{
+                    messages : { create: {type:types.USER_JOINED,text:'has joined the chat',userName} }
+                }
+            });
+        } catch (e) {
+            
+        }
+        //broadcast the message to all the users in the room
+        SocketManager.getInstance().broadcast(roomId,res);
+    }
+    if(message.type === types.JOIN_ROOM){
+        console.log("join room called");
+        const user = new User(userName,socket);
+
+        //add room to the user's list of rooms
+        try{
+            await db.user.update({
+                where:{
+                    userName
+                },
+                data:{
+                    rooms : { 
+                        upsert : {
+                            create : {
+                                active : true,
+                                room : {connect:{id:roomId}}
+                            },
+                            update : {
+                                active : true
+                            },
+                            where:{
+                                userName_roomId : {
+                                    roomId, userName
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }catch(e){
+
+        }
+
+        //adding the user to in the socket manager
+        SocketManager.getInstance().addUser(roomId,user);
+        
+        const res = new Message(types.USER_JOINED,'has joined the chat',userName);
+        
+        //adding the message to the room's list of messages in db
+        try{
+            await db.room.update({
+                where:{
+                    id:roomId
+                },
+                data:{
+                    messages:{create:{type:types.USER_JOINED,text:'has joined the chat',userName}}
+                }
+            });    
+        }catch(e){
+
+        }
+                //broadcasting to all users
+        SocketManager.getInstance().broadcast(roomId,res);
+    }
+    if(message.type === types.JOIN_OLD_ROOM){
+        console.log("join old room called");
+        const user = new User(userName,socket);
+
+        //updating the user's active status in the room
+        await db.userToRoom.update({
+            where:{
+                userName_roomId : {
+                    userName,roomId
+                }
+            },
+            data:{
+                active : true
+            }
+        });
+
+        //adding the user to in the socket manager
+        SocketManager.getInstance().addUser(roomId,user);
+
+        const res = new Message(types.USER_JOINED,'has joined the chat',userName);
+        
+        //adding the message to the room's list of messages in db
+        try{
+            await db.room.update({
+                where:{
+                    id:roomId
+                },
+                data:{
+                    messages:{create:{type:types.USER_JOINED,text:'has joined the chat',userName}}
+                }
+            });
+        }catch(e){
+
+        }
+        //broadcasting to all users
+        SocketManager.getInstance().broadcast(roomId,res);
+    }
+    if(message.type === types.SEND_MESSAGE){
+        console.log("send message called");
+        const res = new Message(types.MESSAGE_RECEIVED,message.payload.message,userName);
+        
+        //add the message to the room's list of messages in db
+        try {
+            await db.room.update({
+                where:{
+                    id:roomId
+                },
+                data:{
+                    messages:{create:{type:types.MESSAGE_RECEIVED,text:message?.payload?.message,userName}}
+                }
+            });
+        } catch (e) {
+               
+        }
+        
+        //broadcast message to all users in the room
+        SocketManager.getInstance().broadcast(roomId,res);
     }
 }
 
-const handleDisconnect = (socket : WebSocket) => {
-    const user = users.find(us => us.getSocket() === socket)
-    let roomId = ''
-    if(user)
-    {
-        roomId = SocketManager.getInstance().removeUser(user) || '' 
-        const chat = chats.find(c=>c.getRoomId()===roomId)
-        if(chat){
-            chat.addMessage(`${user.getUserId()} has left the chat`,'left',user.getUserId())
+const handleDisconnect = async (userName:string, roomId:string) => {
+    const res = new Message(types.USER_LEFT,'has left the chat',userName);
+    //update the active status for the user in the room
+    await db.userToRoom.update({
+        where:{
+            userName_roomId : {
+                userName,roomId
+            }
+        },
+        data:{
+            active : false
         }
+    });
+    //add the message to the room's list of messages
+    try{
+        await db.room.update({
+            where:{
+                id:roomId
+            },
+            data:{
+                messages:{create:{type:types.USER_LEFT,text:'has left the chat',userName}}
+            }
+        });
+    }catch(e){
+
     }
-    const newUsers = users.filter(us => us.getSocket() !== socket )
-    users = [...newUsers]
+
+    //broadcast the message
+    SocketManager.getInstance().broadcast(roomId,res);
+
+    //remove the user from the room
+    SocketManager.getInstance().removeUser(userName,roomId);
 }

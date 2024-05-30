@@ -4,7 +4,7 @@ import useWebSocket from "react-use-websocket"
 import { WS_URL } from "../utils/constants"
 
 const Chat = ({roomId}) =>{
-    const {sendJsonMessage,readyState} = useWebSocket(WS_URL,{
+    const {sendJsonMessage,readyState} = useWebSocket(`${WS_URL}?roomId=${roomId}&token=${localStorage.getItem('token')}`,{
         share:true
     })
     const [text,setText] = useState('')
@@ -12,7 +12,6 @@ const Chat = ({roomId}) =>{
         const data = {
             type : types.SEND_MESSAGE,
             payload : {
-                roomId : roomId,
                 message : text
             }
         }

@@ -1,89 +1,138 @@
 import { randomUUID } from "crypto"
 import { WebSocket } from "ws"
 import { types } from "./message";
+import { timeStamp } from "console";
+
 export class User {
-    public userId : string;
-    public socket : WebSocket | null;
-    constructor(socket:WebSocket){
-        this.userId = randomUUID()
-        this.socket = socket
+    private userName : string;
+    private socket : WebSocket;
+    constructor(userName:string,socket:WebSocket){
+        this.userName = userName;
+        this.socket = socket;
     }
-    getUserId(){
-        return this.userId
+    getUserName(){
+        return this.userName;
     }
     getSocket(){
-        return this.socket
+        return this.socket;
     }
 }
 
+export class Message {
+    private id : string;
+    private type : string;
+    private text : string;
+    private userName : string;
+    private timestamp : number;
+    
+    constructor (type : string, text:string, userName : string) {
+        this.id = randomUUID();
+        this.type = type;
+        this.text = text;
+        this.userName = userName;
+        this.timestamp = Date.now();
+
+    }
+    getType(){
+        return this.type;
+    }
+    getText(){
+        return this.text;
+    }
+    getUserName(){
+        return this.userName;
+    }
+    getTimestamp(){
+        return this.timestamp;
+    }
+}
+
+
 export class SocketManager{
     private static instance : SocketManager;
-    private userToRoomMapping : Map<String, string>;
+    private userToRoomMapping : Map<string, string[]>;
     private interestedUsers : Map<string, User[]>;
-
+    private roomMessages : Map<string, Message[]>;
     private constructor (){
-        this.userToRoomMapping = new Map<String, string>();
-        this.interestedUsers = new Map<string, User[]>(); 
+        this.userToRoomMapping = new Map<string, string[]>();
+        this.interestedUsers = new Map<string, User[]>();
+        this.roomMessages = new Map<string, Message[]>(); 
     }
 
     static getInstance() {
         if(this.instance){
-            return this.instance
+            return this.instance;
         }
-        this.instance = new SocketManager()
-        return this.instance
+        this.instance = new SocketManager();
+        return this.instance;
     }
 
     addUser(roomId : string, user : User){
-        // console.log("in socket manager " + user.userId +" has joined " + roomId)
-        this.userToRoomMapping.set(user.userId,roomId);
+        console.log("add user")
+        this.userToRoomMapping.set(
+            user.getUserName(),
+            [
+                ...(this.userToRoomMapping.get(user.getUserName()) || []),
+                roomId
+            ]
+        );
         this.interestedUsers.set(
             roomId,
             [
                 ...(this.interestedUsers.get(roomId) || []),
                 user
             ]
-        )
+        );
     }
 
-    broadcast(roomId: string, message: string){
-        const users = this.interestedUsers.get(roomId)
+    broadcast(roomId: string, message: Message){
+        console.log('broadcast called')
+        const users = this.interestedUsers.get(roomId);
         if(!users){
-            console.error('no users present to receive the messages')
-            return
+            console.error('no users present to receive the messages');
+            return;
         }
-        users.forEach((user)=>{
-            if(user.socket){
-                user.socket.send(message)
+        //add to the room's messages
+        const messages = this.roomMessages.get(roomId) || [];
+        this.roomMessages.set(roomId,[...messages, new Message(message.getType(),message.getText(),message.getUserName())]);
+
+        //construct message to broadcast
+        const res = JSON.stringify({
+            type : message.getType(),
+            payload : {
+                message : message.getText(),
+                userName : message.getUserName(),
+                timeStamp : message.getTimestamp()
             }
-        })
+        });
+
+        //broadcasting to all the sockets in the room
+        users.forEach((user)=>{
+            if(user.getSocket()){
+                user.getSocket().send(res);
+            }
+        });
     }
 
-    removeUser(user: User){
-        const roomId = this.userToRoomMapping.get(user.getUserId())
-        if(!roomId){
-            console.error("User was not interested in any room")
-            return
-        }
-        // console.log("in socket manager " + user.userId +" has left " + roomId)
-        const res = {
-            type : types.USER_LEFT,
-            payload: {
-                userId : user.userId,
-                message : 'has left the chat'
-            }
-        }
-        this.broadcast(roomId,JSON.stringify(res))
-        const roomUsers = this.interestedUsers.get(roomId) || []
+    removeUser(userName: string,roomId : string){
+        //delete the user form the room
+        const roomUsers = this.interestedUsers.get(roomId) || [];
         const remainingUsers = roomUsers.filter((roomUser)=>{
-            return roomUser.getUserId()!==user.getUserId()
-        })
-        this.interestedUsers.set(roomId,remainingUsers)
+            return roomUser.getUserName()!==userName;
+        });
+        this.interestedUsers.set(roomId,remainingUsers);
         if(this.interestedUsers.get(roomId)?.length===0){
-            this.interestedUsers.delete(roomId)
+            this.interestedUsers.delete(roomId);
         }
-        this.userToRoomMapping.delete(user.getUserId())
-        return roomId
+        //delete the room from the user
+        const userRooms = this.userToRoomMapping.get(userName) || [];
+        const remainingRooms = userRooms.filter((userRoom)=>{
+            return userRoom !== roomId;
+        })
+        this.userToRoomMapping.set(userName,remainingRooms);
+        if(this.userToRoomMapping.get(userName)?.length===0){
+            this.userToRoomMapping.delete(userName);
+        }
     }
 
 }
