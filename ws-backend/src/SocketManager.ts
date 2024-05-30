@@ -1,7 +1,5 @@
 import { randomUUID } from "crypto"
 import { WebSocket } from "ws"
-import { types } from "./message";
-import { timeStamp } from "console";
 
 export class User {
     private userName : string;
@@ -137,3 +135,4 @@ export class SocketManager{
 
 }
 
+//todo: add logout logic to broadcast user left in all rooms

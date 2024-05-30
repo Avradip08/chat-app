@@ -31,7 +31,7 @@ authRouter.post("/login",async (req:Request,res:Response)=>{
             message: "error occured"
         })
     }
-    const token = jwt.sign({userName},"SECRET",{expiresIn:'1h'})
+    const token = jwt.sign({userName},"SECRET",{expiresIn:'24h'})
     res.status(200).json({token,message: "logged in successfully"})
 })
 
@@ -67,7 +67,7 @@ authRouter.post("/signup",async (req:Request,res:Response)=>{
             message: "error occured"
         })
     }
-    const token = jwt.sign({ userName }, "SECRET", { expiresIn: '1h' });
+    const token = jwt.sign({ userName }, "SECRET", { expiresIn: '24h' });
     return res.status(200).json({token,message:'signup successful'})
 })
 

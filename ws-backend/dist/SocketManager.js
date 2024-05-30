@@ -110,3 +110,4 @@ class SocketManager {
     }
 }
 exports.SocketManager = SocketManager;
+//todo: add logout logic to broadcast user left in all rooms

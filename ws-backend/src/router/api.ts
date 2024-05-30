@@ -13,20 +13,43 @@ apiRouter.get("/me",async (req:Request,res:Response)=>{
 })
 
 //get all chats of a user
-apiRouter.get("/chats",async (req:Request,res:Response)=>{
+apiRouter.get("/rooms",async (req:Request,res:Response)=>{
     const {user} = req.body
     const {userName} = user
     console.log(userName)
     try{
-        const user = await db.user.findFirst({
+        const rooms = await db.userToRoom.findMany({
             where:{
                 userName
             },
-            include:{
-                rooms : true
-            }
+            select:{
+                room : {
+                    select : {
+                        id : true,
+                        name : true,
+                        messages : {
+
+                            select : {
+                                id:true, userName:true , text:true , timeStamp:true
+                            },orderBy : {
+                                id : "desc"
+                            },take:1
+                        }
+                    }
+                }
+            },
         })
-        return res.status(200).json({rooms : user?.rooms})
+        const info = rooms?.map(m=>{
+            return {
+                roomId : m?.room?.id,
+                roomName : m?.room?.name,
+                messageId : m?.room?.messages[0]?.id,
+                messageText : m?.room?.messages[0]?.text,
+                messageUser : m?.room?.messages[0]?.userName,
+                messageTime : m?.room?.messages[0]?.timeStamp,
+            }
+        }) || []
+        return res.status(200).json(info)
     }catch(e){
         return res.status(404).send({message:"error occured"})
     }
@@ -84,6 +107,9 @@ apiRouter.post('/userActive', async (req:Request,res:Response)=>{
                 userName_roomId:{
                     userName,roomId
                 }
+            },
+            select:{
+                active:true
             }
         });
         if(user?.active===true){

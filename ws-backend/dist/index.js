@@ -37,7 +37,7 @@ app.ws("/", (ws, req) => {
     console.log(token);
     const user = (0, wsMiddleware_1.verifyToken)(token);
     console.log(user.userName);
-    console.log(getWss().listeners.length);
+    console.log(getWss().clients.size);
     (0, ChatHandler_1.ChatManager)(ws, user.userName, roomId);
 });
 app.listen(PORT, () => {

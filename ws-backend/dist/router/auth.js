@@ -43,7 +43,7 @@ authRouter.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, functi
             message: "error occured"
         });
     }
-    const token = jsonwebtoken_1.default.sign({ userName }, "SECRET", { expiresIn: '1h' });
+    const token = jsonwebtoken_1.default.sign({ userName }, "SECRET", { expiresIn: '24h' });
     res.status(200).json({ token, message: "logged in successfully" });
 }));
 //signup
@@ -79,7 +79,7 @@ authRouter.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, funct
             message: "error occured"
         });
     }
-    const token = jsonwebtoken_1.default.sign({ userName }, "SECRET", { expiresIn: '1h' });
+    const token = jsonwebtoken_1.default.sign({ userName }, "SECRET", { expiresIn: '24h' });
     return res.status(200).json({ token, message: 'signup successful' });
 }));
 exports.default = authRouter;

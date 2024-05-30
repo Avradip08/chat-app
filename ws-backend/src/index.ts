@@ -30,7 +30,7 @@ app.ws("/",(ws:WebSocket,req:Request)=>{
     const user = verifyToken(token) as {userName : string};
     console.log(user.userName);
 
-    console.log(getWss().listeners.length)
+    console.log(getWss().clients.size)
     ChatManager(ws,user.userName,roomId);
 })
 

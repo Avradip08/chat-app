@@ -22,20 +22,43 @@ apiRouter.get("/me", (req, res) => __awaiter(void 0, void 0, void 0, function* (
     return res.json({ user, message: "user is authenticated" });
 }));
 //get all chats of a user
-apiRouter.get("/chats", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+apiRouter.get("/rooms", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user } = req.body;
     const { userName } = user;
     console.log(userName);
     try {
-        const user = yield db_1.db.user.findFirst({
+        const rooms = yield db_1.db.userToRoom.findMany({
             where: {
                 userName
             },
-            include: {
-                rooms: true
-            }
+            select: {
+                room: {
+                    select: {
+                        id: true,
+                        name: true,
+                        messages: {
+                            select: {
+                                id: true, userName: true, text: true, timeStamp: true
+                            }, orderBy: {
+                                id: "desc"
+                            }, take: 1
+                        }
+                    }
+                }
+            },
         });
-        return res.status(200).json({ rooms: user === null || user === void 0 ? void 0 : user.rooms });
+        const info = (rooms === null || rooms === void 0 ? void 0 : rooms.map(m => {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+            return {
+                roomId: (_a = m === null || m === void 0 ? void 0 : m.room) === null || _a === void 0 ? void 0 : _a.id,
+                roomName: (_b = m === null || m === void 0 ? void 0 : m.room) === null || _b === void 0 ? void 0 : _b.name,
+                messageId: (_d = (_c = m === null || m === void 0 ? void 0 : m.room) === null || _c === void 0 ? void 0 : _c.messages[0]) === null || _d === void 0 ? void 0 : _d.id,
+                messageText: (_f = (_e = m === null || m === void 0 ? void 0 : m.room) === null || _e === void 0 ? void 0 : _e.messages[0]) === null || _f === void 0 ? void 0 : _f.text,
+                messageUser: (_h = (_g = m === null || m === void 0 ? void 0 : m.room) === null || _g === void 0 ? void 0 : _g.messages[0]) === null || _h === void 0 ? void 0 : _h.userName,
+                messageTime: (_k = (_j = m === null || m === void 0 ? void 0 : m.room) === null || _j === void 0 ? void 0 : _j.messages[0]) === null || _k === void 0 ? void 0 : _k.timeStamp,
+            };
+        })) || [];
+        return res.status(200).json(info);
     }
     catch (e) {
         return res.status(404).send({ message: "error occured" });
@@ -93,6 +116,9 @@ apiRouter.post('/userActive', (req, res) => __awaiter(void 0, void 0, void 0, fu
                 userName_roomId: {
                     userName, roomId
                 }
+            },
+            select: {
+                active: true
             }
         });
         if ((user === null || user === void 0 ? void 0 : user.active) === true) {

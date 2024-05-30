@@ -34,7 +34,8 @@ model UserToRoom {
   userName String
   room     Room    @relation(fields: [roomId], references: [id])
   roomId   String
-  active   Boolean
+  active   Boolean @default(false)
+  deleted  Boolean @default(false)
 
   @@id([userName, roomId])
 }
