@@ -2,36 +2,46 @@ import {  useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { v4 as uuid } from "uuid";
 import OldChats from "./Oldchats";
-import { roomsOpenAtom } from "../store/rooms";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { API_URL } from "../utils/constants";
 import axios from "axios"
+import { useSetRecoilState } from "recoil";
+import { errorAtom } from "../store/error";
 const Landing = () =>{
     const [joinRoomId,setJoinRoomId]=useState('')
     const [createRoomDetails,setCreateRoomDetails]=useState({
         id : uuid(), name:''
     })
     const [selection,setSelection] = useState({
-        join : false, create : false
+        join : true, create : false
     })
-    const [error,setError]=useState(null)
-    const rooms = useRecoilValue(roomsOpenAtom)
-    const setRooms = useSetRecoilState(roomsOpenAtom)
+    const setError=useSetRecoilState(errorAtom)
     const navigate = useNavigate()
-    const handleJoinRoom = ()=>{
+    const handleJoinRoom =async ()=>{
+        setError(null)
         //implement using db
-        if(rooms.roomsOpen.has(joinRoomId)){
-            setError('you are already present in the chat')
+        const res = await axios.post(`${API_URL}/userActive`,
+            {
+                roomId : joinRoomId
+            },
+            {
+                headers : {
+                    Authorization : 'Bearer ' + localStorage.getItem('token')
+                }
+            }
+        )
+        const data = res?.data
+        
+        //check if the user is already present in the room he wants to join
+        if(data?.userActive===true){
+            setError('you are already present in the room')
             return
         }
-        let newRooms = rooms.roomsOpen
-        newRooms.add(joinRoomId)
-        setRooms({
-            roomsOpen : newRooms
-        })
+
         navigate(`../room/join/${joinRoomId}`)
     }
     const handleCreateRoom = async ()=>{
-        const res = await axios.post('http://localhost:8080/api/roomExists',
+        setError(null)
+        const res = await axios.post(`${API_URL}/roomExists`,
             {
                 roomId : createRoomDetails.id
             },
@@ -42,20 +52,13 @@ const Landing = () =>{
               }
             })
         const data = res?.data
+
+        //check if the roomId is already present in the database
         if(data?.roomExists){
             setError('please give a new room id')
             return
         }
-        //implement using db
-        if(rooms.roomsOpen.has(createRoomDetails.id)){
-            setError('you are already present in the chat')
-            return
-        }
-        let newRooms = rooms.roomsOpen
-        newRooms.add(createRoomDetails.id)
-        setRooms({
-            roomsOpen : newRooms
-        })
+
         navigate(`../room/create/${createRoomDetails.id}`)
     }
     return (
@@ -70,6 +73,10 @@ const Landing = () =>{
                 <span>
                     <input className="" type="checkbox" name="join" id="join" checked={selection.join} onChange={
                         ()=>{
+                            setError(null)
+                            if(selection.join===false){
+                                setJoinRoomId('')
+                            }
                             setSelection(prev=>{
                                 if(prev.join===true){
                                     return {
@@ -94,6 +101,12 @@ const Landing = () =>{
                 <span>
                     <input className="" type="checkbox" name="create" id="create" checked={selection.create} onChange={
                         ()=>{
+                            setError(null)
+                            if(selection.create===false){
+                                setCreateRoomDetails({
+                                    id : uuid(), name:''
+                                })
+                            }
                             setSelection(prev=>{
                                 if(prev.create===true){
                                     return {
@@ -113,33 +126,27 @@ const Landing = () =>{
             {   selection.join===true &&
                 <div className="flex justify-center my-2">
                     <div className="flex flex-col items-center justify-center my-2 gap-2">
-                        <input placeholder="Enter Room ID*" className="border border-black w-60 rounded-md shadow-sm p-1" value={joinRoomId} onChange={(e)=>{
+                        <input placeholder="Enter Room ID*" className="border border-black w-80 rounded-md shadow-sm p-1" value={joinRoomId} onChange={(e)=>{
                             setJoinRoomId(e.target.value)
                         }}/>
-                        {   error!==null &&
-                            <p className="text-red-500 text-sm">{error}</p>
-                        }
-                        <button className="text-white bg-black w-60 rounded-md shadow-sm p-2" onClick={handleJoinRoom}>JOIN ROOM</button>
+                        <button className="text-white bg-black w-80 rounded-md shadow-sm p-2" onClick={handleJoinRoom}>JOIN ROOM</button>
                     </div>
                 </div>
             }
             {   selection.create===true &&
                 <div className="flex justify-center my-2">
                     <div className="flex flex-col items-center justify-center my-2 gap-2">
-                        <input className="border border-black w-60 rounded-md shadow-sm p-1" value={createRoomDetails.id} onChange={(e)=>{
+                        <input className="border border-black w-80 rounded-md shadow-sm p-1" value={createRoomDetails.id} onChange={(e)=>{
                             setCreateRoomDetails({
                                 id : e.target.value, name : createRoomDetails.name
                             })
                         }}/>
-                        <input placeholder="Enter Room Name*" className="border border-black w-60 rounded-md shadow-sm p-1" value={createRoomDetails.name} onChange={(e)=>{
+                        <input placeholder="Enter Room Name*" className="border border-black w-80 rounded-md shadow-sm p-1" value={createRoomDetails.name} onChange={(e)=>{
                             setCreateRoomDetails({
                                 id : createRoomDetails.id, name : e.target.value
                             })
                         }}/>
-                        {   error!==null &&
-                            <p className="text-red-500 text-sm">{error}</p>
-                        }
-                        <button className="text-white bg-black w-60 rounded-md shadow-sm p-2" onClick={handleCreateRoom}>CREATE ROOM</button>
+                        <button className="text-white bg-black w-80 rounded-md shadow-sm p-2" onClick={handleCreateRoom}>CREATE ROOM</button>
                     </div>
                 </div>  
             }

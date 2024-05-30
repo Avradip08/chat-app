@@ -21,6 +21,10 @@ const Room = () => {
             data = {
                 type: types.CREATE_ROOM,
             }
+        }else if(type === "old_room"){
+            data = {
+                type: types.JOIN_OLD_ROOM,
+            }
         }
         if(readyState===ReadyState.OPEN)
         {

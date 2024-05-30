@@ -6,11 +6,14 @@ import { useEffect } from 'react'
 import Login from './components/Login'
 import Signup from './components/Signup'
 import Navbar from './components/Navbar'
-import { RecoilRoot, useSetRecoilState } from 'recoil'
+import { RecoilRoot, useRecoilValue, useSetRecoilState } from 'recoil'
 import axios from 'axios'
 import { userAtom } from './store/user'
 import Home from './components/Home'
-
+import { API_URL } from './utils/constants'
+import {toast,ToastContainer} from "react-toastify"
+import { errorAtom } from './store/error'
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
@@ -18,6 +21,7 @@ function App() {
         <RecoilRoot>
         <AuthRoot/>
         <Navbar/>
+        <ToastElement/>
         <Outlet/>
         </RecoilRoot>
       </>
@@ -29,7 +33,7 @@ const AuthRoot = () => {
   const setUser = useSetRecoilState(userAtom)
   async function getUser(){
     try{
-      const res = await axios.get("http://localhost:8080/api/me",{
+      const res = await axios.get(`${API_URL}/me`,{
         headers : {
           Authorization : "Bearer " + localStorage.getItem("token")
         }
@@ -50,6 +54,19 @@ const AuthRoot = () => {
   [])
   return (
     <></>
+  )
+}
+
+const ToastElement = ()=>{
+  const error = useRecoilValue(errorAtom)
+  useEffect(()=>{
+    toast.error(error,{
+      position:'top-center',
+      autoClose:2000
+    })
+  },[error])
+  return (
+    <ToastContainer/>
   )
 }
 
