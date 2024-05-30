@@ -62,12 +62,12 @@ const OldChats = ()=>{
                     rooms?.map((r,i)=>{
                         const mTime = getTime(r?.messageTime)
                         return (
-                            <div key={r?.roomId} className="p-1 flex justify-between w-80 h-40 border border-collapse border-black cursor-pointer" onClick={
+                            <div key={r?.roomId} className="p-1 flex justify-between w-80 h-20 border border-collapse border-black cursor-pointer" onClick={
                                 ()=>handleJoinOldRoom(r?.roomId)
                                 }>
                                 <div className="flex flex-col justify-between">
                                     <div className="flex gap-2 font-bold font-sans">
-                                        <div>{r?.roomId}</div>
+                                        <div>{r?.roomId?.substring(0,10)}</div>
                                         <div>{r?.roomName === null ? `myRoom${i+1}`: r?.roomName}</div>
                                     </div>
                                     <div className="flex justify-between gap-2">
