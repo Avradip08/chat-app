@@ -50,7 +50,10 @@ const OldChats = ()=>{
             setError("you are already present in the room");
             return;
         }
-        navigate(`../room/old_room/${roomId}`)
+        //open in a new tab
+        window.open(`../room/old_room/${roomId}`, '_blank' , 'rel=noopener noreferrer')
+        //open in same tab
+        // navigate(`../room/old_room/${roomId}`)
     }
     return (
         <div className="flex flex-col justify-center items-center gap-2">
@@ -67,7 +70,7 @@ const OldChats = ()=>{
                                 }>
                                 <div className="flex flex-col justify-between">
                                     <div className="flex gap-2 font-bold font-sans">
-                                        <div>{r?.roomId?.substring(0,10)}</div>
+                                        <div>{r?.roomId?.substring(0,8)}</div>
                                         <div>{r?.roomName === null ? `myRoom${i+1}`: r?.roomName}</div>
                                     </div>
                                     <div className="flex justify-between gap-2">

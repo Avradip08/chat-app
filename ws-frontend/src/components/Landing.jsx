@@ -36,8 +36,8 @@ const Landing = () =>{
             setError('you are already present in the room')
             return
         }
-
-        navigate(`../room/join/${joinRoomId}`)
+        window.open(`../room/join/${joinRoomId}`, '_blank', 'rel=noopener noreferrer')
+        // navigate(`../room/join/${joinRoomId}`)
     }
     const handleCreateRoom = async ()=>{
         setError(null)
@@ -55,11 +55,11 @@ const Landing = () =>{
 
         //check if the roomId is already present in the database
         if(data?.roomExists){
-            setError('please give a new room id')
+            setError('please enter a new room id')
             return
         }
-
-        navigate(`../room/create/${createRoomDetails.id}`)
+        window.open(`../room/create/${createRoomDetails.id}`, '_blank', 'rel=noopener noreferrer')
+        // navigate(`../room/create/${createRoomDetails.id}`)
     }
     return (
         <div className="m-5 font-mono">
