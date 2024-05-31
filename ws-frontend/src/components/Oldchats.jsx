@@ -11,9 +11,9 @@ const OldChats = ()=>{
     const setError = useSetRecoilState(errorAtom)
     const getTime = (dateString)=>{
         const date = new Date(dateString);
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
-        const seconds = date.getSeconds();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const seconds = date.getSeconds().toString().padStart(2, '0');
         const year = date.getFullYear();
         const month = date.getMonth() + 1; // Months are zero-indexed, so add 1
         const day = date.getDate();
@@ -60,12 +60,12 @@ const OldChats = ()=>{
             <div>
                 <h1 className="font-bold text-xl">All Chats</h1>
             </div>
-            <div className="flex flex-col justify-center items-center gap-2">
+            <div className="mx-5 flex flex-col justify-center items-center gap-2">
                 {
                     rooms?.map((r,i)=>{
                         const mTime = getTime(r?.messageTime)
                         return (
-                            <div key={r?.roomId} className="p-1 flex justify-between w-80 h-20 border border-collapse border-black cursor-pointer" onClick={
+                            <div key={r?.roomId} className="p-1 flex justify-between w-80 h-20 border border-collapse border-black cursor-pointer hover:bg-slate-100" onClick={
                                 ()=>handleJoinOldRoom(r?.roomId)
                                 }>
                                 <div className="flex flex-col justify-between">
@@ -73,7 +73,7 @@ const OldChats = ()=>{
                                         <div>{r?.roomId?.substring(0,8)}</div>
                                         <div>{r?.roomName === null ? `myRoom${i+1}`: r?.roomName}</div>
                                     </div>
-                                    <div className="flex justify-between gap-2">
+                                    <div className="flex justify-between gap-1">
                                         <span>{r?.messageUser}</span>
                                         <span>{r?.messageText}</span>
                                     </div>

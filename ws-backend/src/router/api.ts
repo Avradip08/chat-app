@@ -39,6 +39,7 @@ apiRouter.get("/rooms",async (req:Request,res:Response)=>{
                 }
             },
         })
+        //modeling our data for frontend ease
         const info = rooms?.map(m=>{
             return {
                 roomId : m?.room?.id,
@@ -49,7 +50,14 @@ apiRouter.get("/rooms",async (req:Request,res:Response)=>{
                 messageTime : m?.room?.messages[0]?.timeStamp,
             }
         }) || []
-        return res.status(200).json(info)
+        //sorting based on date
+        const sortedInfo = info.sort((a, b) => {
+            const dateA: Date = new Date(a.messageTime);
+            const dateB: Date = new Date(b.messageTime);
+          
+            return dateB.getTime() - dateA.getTime();
+        });
+        return res.status(200).json(sortedInfo)
     }catch(e){
         return res.status(404).send({message:"error occured"})
     }
@@ -66,7 +74,7 @@ apiRouter.get(`/:roomId/messages`,async (req:Request,res:Response)=>{
               id: 'asc', 
             },
           })
-        return res.status(200).json({messages})
+        return res.status(200).json(messages)
     }catch(e){
         return res.status(404).json({message:"error ocurred"})
     }

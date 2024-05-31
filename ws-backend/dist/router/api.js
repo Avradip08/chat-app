@@ -47,6 +47,7 @@ apiRouter.get("/rooms", (req, res) => __awaiter(void 0, void 0, void 0, function
                 }
             },
         });
+        //modeling our data for frontend ease
         const info = (rooms === null || rooms === void 0 ? void 0 : rooms.map(m => {
             var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
             return {
@@ -58,7 +59,13 @@ apiRouter.get("/rooms", (req, res) => __awaiter(void 0, void 0, void 0, function
                 messageTime: (_k = (_j = m === null || m === void 0 ? void 0 : m.room) === null || _j === void 0 ? void 0 : _j.messages[0]) === null || _k === void 0 ? void 0 : _k.timeStamp,
             };
         })) || [];
-        return res.status(200).json(info);
+        //sorting based on date
+        const sortedInfo = info.sort((a, b) => {
+            const dateA = new Date(a.messageTime);
+            const dateB = new Date(b.messageTime);
+            return dateB.getTime() - dateA.getTime();
+        });
+        return res.status(200).json(sortedInfo);
     }
     catch (e) {
         return res.status(404).send({ message: "error occured" });
@@ -76,7 +83,7 @@ apiRouter.get(`/:roomId/messages`, (req, res) => __awaiter(void 0, void 0, void 
                 id: 'asc',
             },
         });
-        return res.status(200).json({ messages });
+        return res.status(200).json(messages);
     }
     catch (e) {
         return res.status(404).json({ message: "error ocurred" });

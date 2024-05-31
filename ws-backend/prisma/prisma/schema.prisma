@@ -30,12 +30,13 @@ model Room {
 }
 
 model UserToRoom {
-  user     User    @relation(fields: [userName], references: [userName])
-  userName String
-  room     Room    @relation(fields: [roomId], references: [id])
-  roomId   String
-  active   Boolean @default(false)
-  deleted  Boolean @default(false)
+  user         User      @relation(fields: [userName], references: [userName])
+  userName     String
+  room         Room      @relation(fields: [roomId], references: [id])
+  roomId       String
+  active       Boolean   @default(false)
+  deleted      Boolean   @default(false)
+  lastSeenTime DateTime? @default(now())
 
   @@id([userName, roomId])
 }
@@ -49,4 +50,6 @@ model Message {
   userName  String
   Room      Room?    @relation(fields: [roomId], references: [id])
   roomId    String?
+  edited    Boolean  @default(false)
+  deleted   Boolean  @default(false)
 }

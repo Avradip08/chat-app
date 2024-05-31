@@ -62,96 +62,98 @@ const Landing = () =>{
         // navigate(`../room/create/${createRoomDetails.id}`)
     }
     return (
-        <div className="m-5 font-mono">
-            <div className="flex justify-center my-2">
-                <h1 className="text-2xl font-extrabold">Welcome</h1>
-            </div>
-            <div className="flex justify-center my-2 gap-2">
-                <span>
-                    <h1>Join Room</h1>
-                </span>
-                <span>
-                    <input className="" type="checkbox" name="join" id="join" checked={selection.join} onChange={
-                        ()=>{
-                            setError(null)
-                            if(selection.join===false){
-                                setJoinRoomId('')
-                            }
-                            setSelection(prev=>{
-                                if(prev.join===true){
-                                    return {
-                                        join : false, create : prev.create
-                                    }
+        <div className="relative h-max">
+            <div className="fixed left-0 h-[92%] overflow-y-auto mx-5 font-mono">
+                <div className="flex justify-center my-2">
+                    <h1 className="text-2xl font-extrabold">Welcome</h1>
+                </div>
+                <div className="flex justify-center my-2 gap-2">
+                    <span>
+                        <h1>Join Room</h1>
+                    </span>
+                    <span>
+                        <input className="" type="checkbox" name="join" id="join" checked={selection.join} onChange={
+                            ()=>{
+                                setError(null)
+                                if(selection.join===false){
+                                    setJoinRoomId('')
                                 }
-                                else if(prev.join===false){
-                                    return {
-                                        join : true, create : false
+                                setSelection(prev=>{
+                                    if(prev.join===true){
+                                        return {
+                                            join : false, create : prev.create
+                                        }
                                     }
-                                }
-                            })
-                        }
-                    }/>
-                </span>
-                <span>
-                    <h1>/</h1>
-                </span>
-                <span>
-                    <h1>Create Room</h1>
-                </span>
-                <span>
-                    <input className="" type="checkbox" name="create" id="create" checked={selection.create} onChange={
-                        ()=>{
-                            setError(null)
-                            if(selection.create===false){
-                                setCreateRoomDetails({
-                                    id : uuid(), name:''
+                                    else if(prev.join===false){
+                                        return {
+                                            join : true, create : false
+                                        }
+                                    }
                                 })
                             }
-                            setSelection(prev=>{
-                                if(prev.create===true){
-                                    return {
-                                        create : false, join : prev.join
-                                    }
+                        }/>
+                    </span>
+                    <span>
+                        <h1>/</h1>
+                    </span>
+                    <span>
+                        <h1>Create Room</h1>
+                    </span>
+                    <span>
+                        <input className="" type="checkbox" name="create" id="create" checked={selection.create} onChange={
+                            ()=>{
+                                setError(null)
+                                if(selection.create===false){
+                                    setCreateRoomDetails({
+                                        id : uuid(), name:''
+                                    })
                                 }
-                                else if(prev.create===false){
-                                    return {
-                                        create : true, join : false
+                                setSelection(prev=>{
+                                    if(prev.create===true){
+                                        return {
+                                            create : false, join : prev.join
+                                        }
                                     }
-                                }
-                            })
-                        }
-                    }/>
-                </span>
-            </div>
-            {   selection.join===true &&
-                <div className="flex justify-center my-2">
-                    <div className="flex flex-col items-center justify-center my-2 gap-2">
-                        <input placeholder="Enter Room ID*" className="border border-black w-80 rounded-md shadow-sm p-1" value={joinRoomId} onChange={(e)=>{
-                            setJoinRoomId(e.target.value)
-                        }}/>
-                        <button className="text-white bg-black w-80 rounded-md shadow-sm p-2" onClick={handleJoinRoom}>JOIN ROOM</button>
-                    </div>
+                                    else if(prev.create===false){
+                                        return {
+                                            create : true, join : false
+                                        }
+                                    }
+                                })
+                            }
+                        }/>
+                    </span>
                 </div>
-            }
-            {   selection.create===true &&
-                <div className="flex justify-center my-2">
-                    <div className="flex flex-col items-center justify-center my-2 gap-2">
-                        <input className="border border-black w-80 rounded-md shadow-sm p-1" value={createRoomDetails.id} onChange={(e)=>{
-                            setCreateRoomDetails({
-                                id : e.target.value, name : createRoomDetails.name
-                            })
-                        }}/>
-                        <input placeholder="Enter Room Name*" className="border border-black w-80 rounded-md shadow-sm p-1" value={createRoomDetails.name} onChange={(e)=>{
-                            setCreateRoomDetails({
-                                id : createRoomDetails.id, name : e.target.value
-                            })
-                        }}/>
-                        <button className="text-white bg-black w-80 rounded-md shadow-sm p-2" onClick={handleCreateRoom}>CREATE ROOM</button>
+                {   selection.join===true &&
+                    <div className="flex justify-center my-2">
+                        <div className="flex flex-col items-center justify-center my-2 gap-2">
+                            <input placeholder="Enter Room ID*" className="border border-black w-80 rounded-md shadow-sm p-1" value={joinRoomId} onChange={(e)=>{
+                                setJoinRoomId(e.target.value)
+                            }}/>
+                            <button className="text-white bg-black w-80 rounded-md shadow-sm p-2" onClick={handleJoinRoom}>JOIN ROOM</button>
+                        </div>
                     </div>
-                </div>  
-            }
-            <div className="flex justify-center my-2">
-                <OldChats/>
+                }
+                {   selection.create===true &&
+                    <div className="flex justify-center my-2">
+                        <div className="flex flex-col items-center justify-center my-2 gap-2">
+                            <input className="border border-black w-80 rounded-md shadow-sm p-1" value={createRoomDetails.id} onChange={(e)=>{
+                                setCreateRoomDetails({
+                                    id : e.target.value, name : createRoomDetails.name
+                                })
+                            }}/>
+                            <input placeholder="Enter Room Name*" className="border border-black w-80 rounded-md shadow-sm p-1" value={createRoomDetails.name} onChange={(e)=>{
+                                setCreateRoomDetails({
+                                    id : createRoomDetails.id, name : e.target.value
+                                })
+                            }}/>
+                            <button className="text-white bg-black w-80 rounded-md shadow-sm p-2" onClick={handleCreateRoom}>CREATE ROOM</button>
+                        </div>
+                    </div>  
+                }
+                <div className="flex justify-center my-2">
+                    <OldChats/>
+                </div>
             </div>
         </div>
     )
