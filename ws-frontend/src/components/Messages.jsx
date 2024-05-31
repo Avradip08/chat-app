@@ -10,16 +10,18 @@ const Messages = ({roomId})=>{
     const {lastJsonMessage} = useWebSocket(`${WS_URL}?roomId=${roomId}&token=${localStorage.getItem('token')}`,{
         share:true
     })
+    //chat scrolling logic using useRef
     const messagesEndRef = useRef(null);
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
 
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
 
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    //loading the previous chats in the chat room
     useEffect(()=>{
         loadChats();
     },[])
@@ -36,6 +38,7 @@ const Messages = ({roomId})=>{
         })
         setMessages(prevMessages)
     }
+    //adding a message to the messages list when a message is received
     const handleMessage = (message)=>{
         if(message.type === types.USER_JOINED){
             console.log(message)
@@ -57,8 +60,9 @@ const Messages = ({roomId})=>{
 
     return (
         <div className="m-2 p-1 w-[300px] h-[500px] border-[3px] border-slate-700 bg-slate-400 rounded-md">
-            <div className="relative h-full ">
-                <div className="fixed h-[64%] overflow-y-scroll w-[285px]">
+            {/* create scrollable component without using fixed */}
+            <div className="flex flex-col relative h-[100%] ">
+                <div className="flex-1 overflow-y-scroll w-[285px]">
                     <ul>
                         {
                             messages.map((m,i)=><li key={i}>{m}</li>)
