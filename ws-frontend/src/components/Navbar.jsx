@@ -9,7 +9,7 @@ const Navbar = () =>{
     const setUser = useSetRecoilState(userAtom)
     const navigate = useNavigate()
     return (
-        <div className="p-2 bg-slate-50 border-b border-slate-400 font-mono">
+        <div className="p-2 bg-slate-50 border-b border-slate-400 font-mono mb-3">
             <div className="flex justify-between">
                 <div className="font-bold text-2xl" onClick={()=>{
                     navigate("/")

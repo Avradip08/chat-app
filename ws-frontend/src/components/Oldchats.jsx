@@ -57,9 +57,6 @@ const OldChats = ()=>{
     }
     return (
         <div className="flex flex-col justify-center items-center gap-2">
-            <div>
-                <h1 className="font-bold text-xl">All Chats</h1>
-            </div>
             <div className="mx-5 flex flex-col justify-center items-center gap-2">
                 {
                     rooms?.map((r,i)=>{
@@ -75,7 +72,7 @@ const OldChats = ()=>{
                                     </div>
                                     <div className="flex justify-between gap-1">
                                         <span>{r?.messageUser}</span>
-                                        <span>{r?.messageText}</span>
+                                        <span>{r?.messageText?.substring(0,20)}</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col justify-center items-center text-sm font-light">
