@@ -183,7 +183,7 @@ const handleDisconnect = async (userName:string, roomId:string) => {
             }
         },
         data:{
-            active : false
+            active:false
         }
     });
     //add the message to the room's list of messages

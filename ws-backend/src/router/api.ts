@@ -71,7 +71,7 @@ apiRouter.get(`/:roomId/messages`,async (req:Request,res:Response)=>{
               roomId
             },
             orderBy: {
-              id: 'asc', 
+              id: 'asc',
             },
           })
         return res.status(200).json(messages)

@@ -34,12 +34,14 @@ const Room = () => {
     },[readyState])
     
     return (
-        <div className="">
-            <div className="flex justify-center">
+        <div className="flex justify-center mr-2">
+            <div>
+            <div className="flex justify-center my-2">
                 <Messages roomId={id}/>
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center ">
                 <Chat roomId={id}/>
+            </div>
             </div>
         </div>
     )

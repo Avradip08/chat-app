@@ -6,6 +6,7 @@ import { API_URL } from "../utils/constants";
 import axios from "axios"
 import { useSetRecoilState } from "recoil";
 import { errorAtom } from "../store/error";
+import Room from "./Room";
 const Landing = () =>{
     const [joinRoomId,setJoinRoomId]=useState('')
     const [createRoomDetails,setCreateRoomDetails]=useState({
@@ -62,10 +63,11 @@ const Landing = () =>{
         // navigate(`../room/create/${createRoomDetails.id}`)
     }
     return (
+        <div className="flex">
         <div className="flex justify-start h-[92%]">
             <div className="font-mono ">
                 <div className="flex flex-col relative  mx-5">
-                    <div className="flex-1 h-[32vh]">
+                    <div className="flex-1 h-[29vh]">
                         <div className="flex justify-center mb-2 gap-2">
                         <span>
                             <h1>Join Room</h1>
@@ -155,7 +157,7 @@ const Landing = () =>{
                 <div className="flex justify-center mb-2">
                     <h1 className="font-bold text-xl">All Chats</h1>
                 </div>
-                <div className="h-[65vh] relative flex flex-col">
+                <div className="h-[59vh] relative flex flex-col">
                     <div className="flex-1 overflow-y-scroll">
                         <div className="flex justify-center mb-2">
                             <OldChats/>
@@ -163,6 +165,10 @@ const Landing = () =>{
                     </div>
                 </div>
             </div>
+        </div>
+        <div className="ml-20">
+            {/* <Room/> */}
+        </div>
         </div>
     )
 }

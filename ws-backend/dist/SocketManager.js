@@ -23,6 +23,9 @@ class Message {
         this.userName = userName;
         this.timestamp = Date.now();
     }
+    getId() {
+        return this.id;
+    }
     getType() {
         return this.type;
     }
@@ -75,6 +78,7 @@ class SocketManager {
         const res = JSON.stringify({
             type: message.getType(),
             payload: {
+                id: message.getId(),
                 message: message.getText(),
                 userName: message.getUserName(),
                 timeStamp: message.getTimestamp()

@@ -31,6 +31,9 @@ export class Message {
         this.timestamp = Date.now();
 
     }
+    getId(){
+        return this.id
+    }
     getType(){
         return this.type;
     }
@@ -98,6 +101,7 @@ export class SocketManager{
         const res = JSON.stringify({
             type : message.getType(),
             payload : {
+                id : message.getId(),
                 message : message.getText(),
                 userName : message.getUserName(),
                 timeStamp : message.getTimestamp()
