@@ -15,7 +15,7 @@ const Message = ({message}) => {
        return  <MyMessage message={message?.payload}/>
     }
     else if(message?.type===types.MESSAGE_RECEIVED && message?.payload?.userName !== user.userName){
-        return <OtherMessage message={message?.payload} userName={user.userName}/>
+        return <OtherMessage message={message?.payload} userName={message?.payload?.userName}/>
     }
 }
 
