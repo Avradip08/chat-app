@@ -3,8 +3,6 @@ import express ,{Request,Response} from "express"
 import expressWs from 'express-ws';
 import { WebSocket } from "ws";
 import cors from "cors"
-import apiRouter from "./router/api";
-import authRouter from "./router/auth";
 import { verifyToken } from "./middlewares/wsMiddleware";
 
 const PORT = process.env.PORT || 8080;
@@ -12,13 +10,7 @@ const PORT = process.env.PORT || 8080;
 const { app, getWss, applyTo } = expressWs(express());
 app.use(express.json())
 app.use(cors())
-app.use("/api",apiRouter)
-app.use("/auth",authRouter)
 
-
-app.get("/test",async (req:Request,res:Response)=>{
-    res.json({message:"hello world"})
-})
 
 app.ws("/",(ws:WebSocket,req:Request)=>{
     console.log("connection established" + Math.random());
