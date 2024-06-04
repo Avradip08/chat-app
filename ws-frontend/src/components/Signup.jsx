@@ -58,40 +58,49 @@ const Signup = () =>{
         
     }
     return(
-        <div className="flex flex-col items-center justify-center h-screen">
-            <div className="flex flex-col h-[375px] w-80 bg-slate-50 border border-black rounded-xl font-mono">
+        <div className="flex flex-col items-center justify-center h-screen gap-2">
+            <div className="flex flex-col h-[400px] w-80 bg-slate-50 border border-black rounded-xl font-mono">
                 <div>
                     <h1 className="m-2 p-2 text-center font-extrabold text-2xl">
                         Signup
                     </h1>
                 </div>
-                <div className="flex justify-center">
+                <div className="flex flex-col items-center m-0.5 justify-center">
                     <input value={userName} onChange={(e)=>{
                         setUserName(e.target.value)
-                    }} className="border border-black m-2 p-2 rounded-md w-9/12" type="text" placeholder="username" />
-                </div>
-                {
+                    }} className="border border-black  p-2 rounded-md w-9/12" type="text" placeholder="username" />
+                    {
+                        userNameError === null &&
+                        <div className="none h-5"></div>
+                    }
+                    {
                     userNameError !== null &&
                     <div className="flex justify-center">
                         <p className="text-red-600 font-mono text-sm">{userNameError}</p>
                     </div>
-                }
-                <div className="flex justify-center">
+                    }
+                </div>
+                
+                <div className="flex flex-col items-center m-0.5  justify-center">
                     <input value={email} onChange={(e)=>{
                         setEmail(e.target.value)
-                    }} className="border border-black m-2 p-2 rounded-md w-9/12" type="text" placeholder="email" />
-                </div>
-                {
+                    }} className="border border-black p-2 rounded-md w-9/12" type="text" placeholder="email" />
+                    {
+                        emailError === null &&
+                        <div className="none h-5"></div>
+                    }
+                    {
                     emailError !== null &&
                     <div className="flex justify-center">
                         <p className="text-red-600 font-mono text-sm">{emailError}</p>
                     </div>
-                }
-                <div className="flex justify-center">
-                    <div className="flex  w-[85%] ml-4">
+                    }
+                </div> 
+                <div className="flex flex-col items-center m-0.5 justify-center">
+                    <div className="flex  w-[81%] ml-4">
                         <input value={password} onChange={(e)=>{
                             setPassword(e.target.value)
-                        }} className="border border-black m-2 p-2 rounded-md w-full" type="password" placeholder="password" />
+                        }} className="border border-black  p-2 rounded-md w-full" type="password" placeholder="password" />
                         {/**Tool tip for password */}
                         <div className="relative flex items-center group">
                             <span
@@ -111,24 +120,33 @@ const Signup = () =>{
                             </div>
                         </div>
                     </div>
-                </div>
-                {
+                    {
+                        passwordError === null &&
+                        <div className="none h-5"></div>
+                    }
+                    {
                     passwordError !== null &&
                     <div className="flex justify-center">
                         <p className="text-red-600 font-mono text-sm">{passwordError}</p>
                     </div>
-                }
-                <div className="flex justify-center">
+                    }
+                </div>
+                <div className="flex flex-col items-center justify-center m-0.5">
                     <input value={confirmPassword} onChange={(e)=>{
                         setConfirmPassword(e.target.value)
-                    }} className="border border-black m-2 p-2 rounded-md w-9/12" type="password" placeholder="confirm password" />
-                </div>
-                {
+                    }} className="border border-black  p-2 rounded-md w-9/12" type="password" placeholder="confirm password" />
+                    {
+                        confirmPasswordError === null &&
+                        <div className="none h-5"></div>
+                    }
+                    {
                     confirmPasswordError !== null &&
                     <div className="flex justify-center">
                         <p className="text-red-600 font-mono text-sm">{confirmPasswordError}</p>
                     </div>
-                }
+                    }
+                </div>
+                
                 <div className="flex justify-center">
                     <button onClick={handleSubmit} className="bg-black text-white m-2 p-2 rounded-lg shadow-lg w-9/12 text-xl font-bold">SUBMIT</button>
                 </div>

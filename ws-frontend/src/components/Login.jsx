@@ -39,28 +39,32 @@ const Login = () =>{
     }
     return(
         <div className="flex flex-col items-center justify-center h-screen">
-            <div className="flex flex-col h-[275px] w-80 bg-slate-50 border border-black rounded-xl font-mono">
+            <div className="flex flex-col h-[285px] w-80 bg-slate-50 border border-black rounded-xl font-mono">
                 <div>
                     <h1 className="m-2 p-2 text-center font-extrabold text-2xl">
                         Login
                     </h1>
                 </div>
-                <div className="flex justify-center">
+                <div className="flex flex-col items-center m-0.5 justify-center">
                     <input value={userName} onChange={(e)=>{
                         setUserName(e.target.value)
-                    }} className="border border-black m-2 p-2 rounded-md w-9/12" type="text" placeholder="userName" />
-                    
+                    }} className="border border-black p-2 rounded-md w-9/12" type="text" placeholder="userName" />
+                    {
+                        userNameError === null &&
+                        <div className="none h-5"></div>
+                    }
+                    {
+                        userNameError !== null &&
+                        <div className="flex justify-center">
+                            <p className="text-red-600 font-mono text-sm">{userNameError}</p>
+                        </div>
+                    }
                 </div>
-                {
-                    userNameError !== null &&
-                    <div className="flex justify-center">
-                        <p className="text-red-600 font-mono text-sm">{userNameError}</p>
-                    </div>
-                }
-                <div className="flex justify-center">
+                <div className="flex flex-col items-center m-0.5 justify-center">
                     <input value={password} onChange={(e)=>{
                         setPassword(e.target.value)
-                    }} className="border border-black m-2 p-2 rounded-md w-9/12" type="password" placeholder="password" />
+                    }} className="border border-black  p-2 rounded-md w-9/12" type="password" placeholder="password" />
+                    <div className="none h-5"></div>
                 </div>
                 <div className="flex justify-center">
                     <button onClick={handleSubmit} className="bg-black text-white m-2 p-2 rounded-lg shadow-lg w-9/12 text-xl font-bold">SUBMIT</button>
