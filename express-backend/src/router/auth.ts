@@ -2,7 +2,7 @@ import { Router,Request,Response } from "express";
 import { db } from "../db";
 import jwt from "jsonwebtoken"
 import bcrypt from 'bcryptjs'
-import { User } from "@prisma/client";
+import { validateUserSignup } from "../middlewares/zodErrors";
 const authRouter = Router()
 
 //login
@@ -17,18 +17,18 @@ authRouter.post("/login",async (req:Request,res:Response)=>{
         })
         console.log(user)
         if(!user){
-            return res.status(401).json({message:"user not found"})
+            return res.status(200).json({error: {userName:"user not found"}})
         }
         let passworMatch = await bcrypt.compare(password,user.password)
         console.log(passworMatch)
         if(passworMatch === false){
             console.log("inside this catch")
-            return res.status(401).json({message: "password doesn't match"})
+            return res.status(200).json({error: { userName : "Username or Password Incorrect"}})
         }
     }catch(e){
         
         return res.status(404).json({
-            message: "error occured"
+            error: "error occured"
         })
     }
     const token = jwt.sign({userName},"SECRET",{expiresIn:'24h'})
@@ -37,9 +37,18 @@ authRouter.post("/login",async (req:Request,res:Response)=>{
 
 //signup
 authRouter.post("/signup",async (req:Request,res:Response)=>{
-    const {userName,email,password} = req.body
+    const {userName,email,password,confirmPassword} = req.body
     //do the input validations
-
+    const zodData = validateUserSignup(userName,email,password,confirmPassword)
+    if(zodData.success===false){
+        let err = {}
+        zodData.errors?.map((e)=>{
+            err = {
+                ...err, [e.field] : e.message
+            }
+        })
+        return res.status(200).json({error:err})
+    }
     //check if userName already exists
     try{
         const user = await db.user.findUnique({
@@ -48,11 +57,11 @@ authRouter.post("/signup",async (req:Request,res:Response)=>{
             }
         })
         if(user){
-            return res.status(401).json({message : "user with same user name already exists"})
+            return res.status(200).json({error : {userName:"username already exists"}})
         }
     }catch(e){
         return res.json({
-            message: "error occured"
+            error: "error occured"
         })
     }
     try{
@@ -64,7 +73,7 @@ authRouter.post("/signup",async (req:Request,res:Response)=>{
         })
     }catch(e){
         return res.status(404).json({
-            message: "error occured"
+            error: "error occured"
         })
     }
     const token = jwt.sign({ userName }, "SECRET", { expiresIn: '24h' });
