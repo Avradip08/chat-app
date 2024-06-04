@@ -1,6 +1,6 @@
 export const WS_URL = 'ws://localhost:8080/';
 export const API_URL = 'http://localhost:8081/api';
-
+export const AUTH_URL = 'http://localhost:8081/auth';
 export const allRoomsResponseSchema = [
     {
         "roomId": "xx",

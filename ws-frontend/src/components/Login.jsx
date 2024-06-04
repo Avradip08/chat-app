@@ -3,24 +3,35 @@ import axios from "axios"
 import { useSetRecoilState } from "recoil"
 import { userAtom } from "../store/user"
 import { useNavigate } from "react-router"
+import { AUTH_URL } from "../utils/constants"
 
 const Login = () =>{
     const [userName,setUserName] = useState('')
     const [password,setPassword] = useState('')
+    const [userNameError, setUserNameError] = useState(null)
     const setUser = useSetRecoilState(userAtom)
     const navigate = useNavigate()
     async function handleSubmit(){
+        setUserNameError(null)
         try{
-            const res = await axios.post("http://localhost:8080/auth/login",{
+            const res = await axios.post(`${AUTH_URL}/login`,{
                 userName,password
             })
             
             const data = res.data
-            console.log(data)
-            localStorage.setItem("token",data.token)
+            if(data?.error){
+                const errors = data?.error
+                for(let key in errors){
+                    if(key==="userName"){
+                        setUserNameError(errors[key])
+                    }
+                }
+                return
+            }
             setUser({
                 userName
             })
+            localStorage.setItem("token",data.token)
             navigate("/chat")
         }catch(e){
             console.log(error)
@@ -38,7 +49,14 @@ const Login = () =>{
                     <input value={userName} onChange={(e)=>{
                         setUserName(e.target.value)
                     }} className="border border-black m-2 p-2 rounded-md w-9/12" type="text" placeholder="userName" />
+                    
                 </div>
+                {
+                    userNameError !== null &&
+                    <div className="flex justify-center">
+                        <p className="text-red-600 font-mono text-sm">{userNameError}</p>
+                    </div>
+                }
                 <div className="flex justify-center">
                     <input value={password} onChange={(e)=>{
                         setPassword(e.target.value)

@@ -24,7 +24,7 @@ const Navbar = () =>{
                                 setUser({
                                     userName : null
                                 })
-                                navigate("/")
+                                navigate("/login")
                             }}>Logout</button>
                         </div>
                     </div> :
