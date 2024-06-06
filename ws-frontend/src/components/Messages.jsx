@@ -25,7 +25,7 @@ const Messages = ({roomId})=>{
     //loading the previous chats in the chat room
     useEffect(()=>{
         loadChats();
-    },[])
+    },[roomId])
     const loadChats = async () => {
         const res = await axios.get(`${API_URL}/${roomId}/messages`,{
             headers : {
@@ -80,9 +80,7 @@ const Messages = ({roomId})=>{
                         }
                         <div ref={messagesEndRef}/>
                     </div>
-                    
                 </div>
-                
             </div>
         </div>
     )

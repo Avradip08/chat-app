@@ -2,14 +2,19 @@ import { SocketManager, User, Message } from "./SocketManager";
 import { types } from "./message";
 import { WebSocket } from "ws";
 import { db } from "./db";
-import { create } from "domain";
 
 export function ChatManager(socket : WebSocket, userName : string, roomId:string){
     socket.on("message",(data)=>{
-        handleMessage(data.toString(),socket,userName,roomId);
+        if(roomId!=="null")
+        {
+            handleMessage(data.toString(),socket,userName,roomId);
+        }
     })
     socket.on("close",()=>{
-        handleDisconnect(userName,roomId);
+        if(roomId!=="null")
+        {
+            handleDisconnect(userName,roomId);
+        }
     })
 }
 
@@ -89,12 +94,13 @@ const handleMessage = async (data : string, socket : WebSocket, userName:string,
                 }
             });
         }catch(e){
-
+            console.log('updating userRoom relation error')
+            console.log(e);
         }
 
         //adding the user to in the socket manager
         SocketManager.getInstance().addUser(roomId,user);
-        
+
         const res = new Message(types.USER_JOINED,'has joined the chat',userName);
         
         //adding the message to the room's list of messages in db
@@ -108,7 +114,8 @@ const handleMessage = async (data : string, socket : WebSocket, userName:string,
                 }
             });    
         }catch(e){
-
+            console.log('updating messages error')
+            console.log(e);
         }
                 //broadcasting to all users
         SocketManager.getInstance().broadcast(roomId,res);

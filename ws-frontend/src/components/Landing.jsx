@@ -6,7 +6,7 @@ import { API_URL } from "../utils/constants";
 import axios from "axios"
 import { useSetRecoilState } from "recoil";
 import { errorAtom } from "../store/error";
-import Room from "./Room";
+import LandingRoom from "./LandingRoom";
 const Landing = () =>{
     const [joinRoomId,setJoinRoomId]=useState('')
     const [createRoomDetails,setCreateRoomDetails]=useState({
@@ -15,8 +15,9 @@ const Landing = () =>{
     const [selection,setSelection] = useState({
         join : true, create : false
     })
+    const [roomIdLand,setRoomIdLand] = useState(null);
+    const [roomType,setRoomType] = useState(null);
     const setError=useSetRecoilState(errorAtom)
-    const navigate = useNavigate()
     const handleJoinRoom =async ()=>{
         setError(null)
         //implement using db
@@ -37,8 +38,10 @@ const Landing = () =>{
             setError('you are already present in the room')
             return
         }
-        window.open(`../room/join/${joinRoomId}`, '_blank', 'rel=noopener noreferrer')
+        // window.open(`../room/join/${joinRoomId}`, '_blank', 'rel=noopener noreferrer')
         // navigate(`../room/join/${joinRoomId}`)
+        setRoomIdLand(joinRoomId);
+        setRoomType('join');
     }
     const handleCreateRoom = async ()=>{
         setError(null)
@@ -59,8 +62,10 @@ const Landing = () =>{
             setError('please enter a new room id')
             return
         }
-        window.open(`../room/create/${createRoomDetails.id}`, '_blank', 'rel=noopener noreferrer')
+        // window.open(`../room/create/${createRoomDetails.id}`, '_blank', 'rel=noopener noreferrer')
         // navigate(`../room/create/${createRoomDetails.id}`)
+        setRoomIdLand(createRoomDetails.id);
+        setRoomType('create');
     }
     return (
         <div className="flex">
@@ -167,7 +172,7 @@ const Landing = () =>{
             </div>
         </div>
         <div className="ml-20">
-            {/* <Room/> */}
+            <LandingRoom type={roomType} roomId={roomIdLand} setRoomId={setRoomIdLand}/>
         </div>
         </div>
     )

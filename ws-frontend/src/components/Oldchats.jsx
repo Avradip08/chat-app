@@ -18,7 +18,7 @@ const OldChats = ()=>{
         const month = date.getMonth() + 1; // Months are zero-indexed, so add 1
         const day = date.getDate();
         return {
-                time : `${hours}:${minutes}:${seconds}`,
+                time : `${hours}:${minutes}`,
                 date : `${day}-${month}-${year}`
         }
     }

@@ -3,7 +3,7 @@ import Chat from "./Chat"
 import Messages from "./Messages"
 import useWebSocket, { ReadyState } from "react-use-websocket"
 import { WS_URL } from "../utils/constants"
-import { useEffect, useState } from "react"
+import { useEffect} from "react"
 import { types } from "../utils/messagesTypes"
 
 const Room = () => {

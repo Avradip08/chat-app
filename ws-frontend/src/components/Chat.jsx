@@ -8,6 +8,8 @@ const Chat = ({roomId}) =>{
         share:true
     })
     const [text,setText] = useState('')
+    useEffect(()=>{
+    },[roomId])
     const handleMessage = ()=> {
         const data = {
             type : types.SEND_MESSAGE,

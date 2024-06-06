@@ -29,7 +29,7 @@ export const OtherMessage = ({message,userName}) => {
                         return <div className="text-slate-700" key={i}>{m}</div>
                     })
                 }
-                <div className="text-xs font-light text-white">
+                <div className="text-xs font-light text-slate-600">
                     <span>{getTime(message?.timeStamp).time}</span>
                     <span>{", "}</span>
                     <span>{getTime(message?.timeStamp).date}</span>
@@ -48,7 +48,7 @@ export const MyMessage = ({message}) => {
                        return <div className="text-slate-700" key={i}>{m}</div>
                     })
                 }
-                <div className="text-xs font-light text-white">
+                <div className="text-xs font-light text-slate-600">
                     <span>{getTime(message?.timeStamp).time}</span>
                     <span>{", "}</span>
                     <span>{getTime(message?.timeStamp).date}</span>
@@ -70,18 +70,18 @@ export const ActivityMessage = ({message}) => {
 const ProcessString = (message) => {
     const lines = message.split('\n')
     const finalLines = []
-    let width = 0
     for(let i = 0; i < lines.length; i++){
         const words = lines[i].split(' ')
         let currLine = ''
         for(let j = 0; j < words.length; j++){ 
             let word = words[j]
-            if(word.length>50){
-                for(let k=0;k<word.length;k+=50){  finalLines.push(word.substring(k,Math.min(k+50,word.length)))
+            if(word.length>32){
+                for(let k=0;k<word.length;k+=32){  
+                    finalLines.push(word.substring(k,Math.min(k+32,word.length)))
                 }
                 continue
             } 
-            if(word.length+currLine.length>50){
+            if(word.length+currLine.length>32){
                 finalLines.push(currLine)
                 currLine = ''
             }
@@ -99,12 +99,11 @@ const getTime = (dateString)=>{
     const date = new Date(dateString);
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
     const year = date.getFullYear();
     const month = date.getMonth() + 1; // Months are zero-indexed, so add 1
     const day = date.getDate();
     return {
-            time : `${hours}:${minutes}:${seconds}`,
+            time : `${hours}:${minutes}`,
             date : `${day}-${month}-${year}`
     }
 }
