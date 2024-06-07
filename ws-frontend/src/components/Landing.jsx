@@ -165,7 +165,7 @@ const Landing = () =>{
                 <div className="h-[59vh] relative flex flex-col">
                     <div className="flex-1 overflow-y-scroll">
                         <div className="flex justify-center mb-2">
-                            <OldChats/>
+                            <OldChats setType={setRoomType} setRoomId={setRoomIdLand}/>
                         </div>
                     </div>
                 </div>
