@@ -183,7 +183,8 @@ const handleMessage = async (data : string, socket : WebSocket, userName:string,
 const handleDisconnect = async (userName:string, roomId:string) => {
     const res = new Message(types.USER_LEFT,'has left the chat',userName);
     //update the active status for the user in the room
-    await db.userToRoom.update({
+    try {
+        await db.userToRoom.update({
         where:{
             userName_roomId : {
                 userName,roomId
@@ -193,6 +194,10 @@ const handleDisconnect = async (userName:string, roomId:string) => {
             active:false
         }
     });
+    } catch (error) {
+        
+    }
+    
     //add the message to the room's list of messages
     try{
         await db.room.update({

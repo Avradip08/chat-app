@@ -70,10 +70,10 @@ const Messages = ({roomId})=>{
     },[lastJsonMessage])
 
     return (
-        <div className="p-1 w-[130vh] h-[76vh] border-[3px] border-slate-700 bg-slate-100 rounded-md">
+        <div className="p-1 w-[145vh] h-[74vh] border-[3px] border-t-0 border-slate-700 bg-slate-100">
             {/* create scrollable component without using fixed */}
             <div className="flex flex-col relative h-[100%] ">
-                <div className="flex-1 overflow-y-scroll overflow-x-hidden w-[128vh]">
+                <div className="flex-1 overflow-y-scroll overflow-x-hidden w-[143vh]">
                     <div className="flex flex-col gap-1">
                         {
                             messages.map((m,i)=><Message key={i} message={m}/>)

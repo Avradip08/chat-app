@@ -36,15 +36,21 @@ const LandingRoom = ({type,roomId,setRoomId})=>{
         )
     }
     return (
-        <div className="flex flex-col justify-center mr-2">
-            <div className="w-[730px]">
-                <div className="flex justify-between border-[2px] border-black">
-                    <div className="font-bold text-xl ml-2">{roomId}</div>
+        <div className="flex flex-col justify-center">
+            <div className="w-[145vh]">
+                <div className="flex justify-between border-[3px] border-slate-700 bg-slate-100">
+                    <div className="font-bold text-xl ml-2">
+                        <div className="flex flex-col justify-center items-center">
+                            {roomId}
+                        </div>
+                    </div>
                     <div className="mr-2">
                         <button className="font-bold text-xl text-red-500"
                             onClick={()=>setRoomId(null)}
                         >
-                            x
+                            <div className="flex flex-col justify-center items-center">
+                                    X
+                            </div>
                         </button>
                     </div>
                 </div>

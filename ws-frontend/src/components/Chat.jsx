@@ -21,15 +21,15 @@ const Chat = ({roomId}) =>{
     }
     return (
         
-        <div className="flex w-[130vh] h-[9vh]">
-            <textarea className="w-[110vh] h-[8vh] border border-slate-500 rounded-md bg-slate-200 p-1 mr-2"
+        <div className="flex w-[145vh] h-[9vh]">
+            <textarea className="w-[125vh] h-[7vh] border-[3px] border-slate-700 bg-slate-100 p-1 mr-2"
                    value={text}
                    onChange={(e)=>setText(e.target.value)}
             />
-            <button  className="p1 w-[20vh] h-[7vh] bg-black text-white font-extrabold rounded-md shadow-xl disabled:bg-slate-500"
+            <button  className="p1 w-[20vh] h-[7vh] bg-black text-white font-extrabold shadow-xl disabled:bg-slate-500"
                      onClick={handleMessage}
             >
-            Send
+                Send
             </button>
         </div>
     )
