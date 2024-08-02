@@ -9,6 +9,9 @@ export function ChatManager(socket : WebSocket, userName : string, roomId:string
         {
             handleMessage(data.toString(),socket,userName,roomId);
         }
+        if(roomId==="null"){
+            checkForUpdates(socket);
+        }
     })
     socket.on("close",()=>{
         if(roomId!=="null")
@@ -217,4 +220,11 @@ const handleDisconnect = async (userName:string, roomId:string) => {
 
     //remove the user from the room
     SocketManager.getInstance().removeUser(userName,roomId);
+}
+
+function checkForUpdates(socket:WebSocket){
+    //check for updates in all the rooms messages for this user
+    //find all updates/new messages that have happened in each room and send the updated list of messages
+    //send the count of the unread messages for the updated rooms
+    //send the last message(read/unread) from the updated rooms
 }

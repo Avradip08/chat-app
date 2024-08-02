@@ -44,13 +44,13 @@ const LandingRoom = ({type,roomId,setRoomId})=>{
                             {roomId}
                         </div>
                     </div>
-                    <div className="mr-2">
-                        <button className="font-bold text-xl text-red-500"
+                    <div>
+                        <button className="w-10 font-bold text-xl text-white bg-red-600"
                             onClick={()=>setRoomId(null)}
                         >
-                            <div className="flex flex-col justify-center items-center">
+                            
                                     X
-                            </div>
+                            
                         </button>
                     </div>
                 </div>

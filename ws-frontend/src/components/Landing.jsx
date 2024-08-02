@@ -1,5 +1,4 @@
 import {  useState } from "react"
-import { useNavigate } from "react-router-dom";
 import { v4 as uuid } from "uuid";
 import OldChats from "./Oldchats";
 import { API_URL } from "../utils/constants";

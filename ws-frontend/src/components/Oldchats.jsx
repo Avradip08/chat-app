@@ -2,11 +2,13 @@ import { useEffect, useState } from "react"
 import { API_URL } from "../utils/constants"
 import axios from "axios"
 import { useNavigate } from "react-router"
-import { useSetRecoilState } from "recoil"
+import { useRecoilValue, useSetRecoilState } from "recoil"
 import { errorAtom } from "../store/error"
+import { userAtom } from "../store/user"
 
 const OldChats = ({setType,setRoomId})=>{
     const [rooms,setRooms] = useState(null)
+    const user = useRecoilValue(userAtom)
     const setError = useSetRecoilState(errorAtom)
     const getTime = (dateString)=>{
         const date = new Date(dateString);
@@ -91,9 +93,42 @@ const OldChats = ({setType,setRoomId})=>{
                                         <div>{r?.roomId?.substring(0,8)}</div>
                                         <div>{r?.roomName === null ? `myRoom${i+1}`: r?.roomName}</div>
                                     </div>
-                                    <div className="flex justify-between gap-1">
-                                        <span>{r?.messageUser}</span>
-                                        <span>{r?.messageText?.substring(0,20)}</span>
+                                    <div className="flex justify-start space-x-2">
+                                        {
+                                            user.userName !== r?.messageUser &&
+                                            <>
+                                                <span className="font-semibold italic">{r?.messageUser}</span>
+                                                {
+                                                    (r?.messageText!=="has joined the chat" && r?.messageText!=="has left the chat") &&
+                                                    <span>:</span>
+                                                }
+                                                <span>{r?.messageText?.substring(0,20)}</span>
+                                            </>
+                                        }
+                                        {
+                                            user.userName === r?.messageUser &&
+                                            <>
+                                                <span className="font-semibold italic">You</span>
+                                                {
+                                                    (r?.messageText!=="has joined the chat" && r?.messageText!=="has left the chat") &&
+                                                    <span>:</span>
+                                                }
+                                                {
+                                                    (r?.messageText!=="has joined the chat" && r?.messageText!=="has left the chat") &&
+                                                    <span>{r?.messageText?.substring(0,20)}</span>
+                                                }
+                                                {
+                                                    (r?.messageText==="has joined the chat") && 
+                                                    <span>have joined the chat</span>
+                                                }
+                                                {
+                                                     (r?.messageText==="has left the chat") && 
+                                                    <span>have left the chat</span>
+                                                }
+                                            </>
+                                        }    
+                                        
+                                        
                                     </div>
                                 </div>
                                 <div className="flex flex-col justify-center items-center text-sm font-light">
