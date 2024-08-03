@@ -51,13 +51,20 @@ export class Message {
 
 export class SocketManager{
     private static instance : SocketManager;
+    //keeps track of all rooms a user is currently chatting in(has the room window open)
     private userToRoomMapping : Map<string, string[]>;
+    //keeps track of all users in a chat who have the chat window open(reverse mapping of the above)
     private interestedUsers : Map<string, User[]>;
-    private roomMessages : Map<string, Message[]>;
+    //keeps track of all the users active currently
+    private activeUsers : Map<string,WebSocket[]>;
+    //keeps a list of all users in a room which is active (contains at least one active user)
+    private allRoomUsers : Map<string, string[]>;
+    
     private constructor (){
         this.userToRoomMapping = new Map<string, string[]>();
         this.interestedUsers = new Map<string, User[]>();
-        this.roomMessages = new Map<string, Message[]>(); 
+        this.activeUsers = new Map<string,WebSocket[]>();
+        this.allRoomUsers = new Map<string, string[]>();
     }
 
     static getInstance() {
@@ -93,9 +100,6 @@ export class SocketManager{
             console.error('no users present to receive the messages');
             return;
         }
-        //add to the room's messages
-        const messages = this.roomMessages.get(roomId) || [];
-        this.roomMessages.set(roomId,[...messages, new Message(message.getType(),message.getText(),message.getUserName())]);
 
         //construct message to broadcast
         const res = JSON.stringify({
@@ -104,7 +108,8 @@ export class SocketManager{
                 id : message.getId(),
                 message : message.getText(),
                 userName : message.getUserName(),
-                timeStamp : message.getTimestamp()
+                timeStamp : message.getTimestamp(),
+                roomId : roomId
             }
         });
 
@@ -114,6 +119,9 @@ export class SocketManager{
                 user.getSocket().send(res);
             }
         });
+
+        //for updating chat list for all active users part of roomId
+        this.updateChats(roomId,res)
     }
 
     removeUser(userName: string,roomId : string){
@@ -125,6 +133,7 @@ export class SocketManager{
         this.interestedUsers.set(roomId,remainingUsers);
         if(this.interestedUsers.get(roomId)?.length===0){
             this.interestedUsers.delete(roomId);
+            this.allRoomUsers.delete(roomId);
         }
         //delete the room from the user
         const userRooms = this.userToRoomMapping.get(userName) || [];
@@ -137,6 +146,50 @@ export class SocketManager{
         }
     }
 
+    addActiveUser(socket:WebSocket, userName:string){
+        this.activeUsers.set(userName,
+            [
+                ...(this.activeUsers.get(userName) || []),
+                socket
+            ]
+        );
+    }
+
+    removeActiveUser(userName: string){
+        const remInd : number[] = [];
+        this.activeUsers.get(userName)?.forEach((user,ind)=>{
+            if(user.readyState===WebSocket.CLOSED)
+                remInd.push(ind)
+        })
+        for(let i=remInd.length-1;i>=0;--i){
+            this.activeUsers.get(userName)?.splice(remInd[i],1);
+        }
+        if(this.activeUsers.get(userName)?.length==0)
+            this.activeUsers.delete(userName);
+    }
+
+    setAllRoomUsers(roomId: string, users: string[]){
+        this.allRoomUsers.set(roomId,users);
+    }
+
+    isActiveRoom(roomId:string) : boolean{
+        return this.allRoomUsers.has(roomId);
+    }
+
+    updateChats(roomId:string,res:string){
+        console.log("update chats called")
+        console.log(res);
+        console.log(this.allRoomUsers);
+        console.log(this.activeUsers.keys());
+        const users = this.allRoomUsers.get(roomId);
+        if(users){
+            users.forEach(user=>{
+                if(this.activeUsers.has(user)){
+                    this.activeUsers.get(user)?.map(u=>u.send(res));
+                }
+            })
+        }
+    }
 }
 
 //todo: add logout logic to broadcast user left in all rooms

@@ -4,19 +4,22 @@ import { WebSocket } from "ws";
 import { db } from "./db";
 
 export function ChatManager(socket : WebSocket, userName : string, roomId:string){
+    if(roomId==="updateChat"){
+        addOnlineUser(socket, userName);
+    }
     socket.on("message",(data)=>{
-        if(roomId!=="null")
+        if(roomId!=="updateChat" && roomId!=="null")
         {
             handleMessage(data.toString(),socket,userName,roomId);
         }
-        if(roomId==="null"){
-            checkForUpdates(socket);
-        }
     })
     socket.on("close",()=>{
-        if(roomId!=="null")
+        if(roomId!=="null" && roomId!=="updateChat")
         {
             handleDisconnect(userName,roomId);
+        }
+        if(roomId==="updateChat"){
+            SocketManager.getInstance().removeActiveUser(userName);
         }
     })
 }
@@ -25,6 +28,25 @@ const handleMessage = async (data : string, socket : WebSocket, userName:string,
     const message = JSON.parse(data);
     console.log(Date.now());
     console.log(message);
+
+    //check if a room has active users
+    if(SocketManager.getInstance().isActiveRoom(roomId)!=true){
+        const users = await db.userToRoom.findMany({
+            where: {
+                roomId : roomId
+            },
+            select : {
+                user: {
+                    select : {
+                        userName : true
+                    }
+                }
+            }
+        })
+        const userNames = users.map(u=>u.user.userName);
+        SocketManager.getInstance().setAllRoomUsers(roomId,userNames);
+    }
+
     if(message.type === types.CREATE_ROOM){
         console.log("create room called");
         const user = new User(userName,socket);
@@ -222,9 +244,6 @@ const handleDisconnect = async (userName:string, roomId:string) => {
     SocketManager.getInstance().removeUser(userName,roomId);
 }
 
-function checkForUpdates(socket:WebSocket){
-    //check for updates in all the rooms messages for this user
-    //find all updates/new messages that have happened in each room and send the updated list of messages
-    //send the count of the unread messages for the updated rooms
-    //send the last message(read/unread) from the updated rooms
+function addOnlineUser(socket:WebSocket, userName : string){
+    SocketManager.getInstance().addActiveUser(socket,userName);
 }

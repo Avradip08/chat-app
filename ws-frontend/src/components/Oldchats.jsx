@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react"
-import { API_URL } from "../utils/constants"
+import { API_URL, WS_URL } from "../utils/constants"
 import axios from "axios"
 import { useNavigate } from "react-router"
 import { useRecoilValue, useSetRecoilState } from "recoil"
 import { errorAtom } from "../store/error"
 import { userAtom } from "../store/user"
+import useWebSocket from "react-use-websocket"
 
 const OldChats = ({setType,setRoomId})=>{
-    const [rooms,setRooms] = useState(null)
+    const {lastJsonMessage} = useWebSocket(`${WS_URL}?roomId=updateChat&token=${localStorage.getItem('token')}`)
+    const [rooms,setRooms] = useState([])
     const user = useRecoilValue(userAtom)
     const setError = useSetRecoilState(errorAtom)
     const getTime = (dateString)=>{
@@ -34,6 +36,33 @@ const OldChats = ({setType,setRoomId})=>{
     useEffect(()=>{
         fetchRooms()
     },[])
+
+    useEffect(()=>{
+        if(lastJsonMessage!=null){ 
+            console.log("old chat socket message")
+            console.log(lastJsonMessage);
+            const data = lastJsonMessage.payload;
+            setRooms(
+                prev => {
+                    let newRooms = prev;
+                    const ind = newRooms.findIndex(r=>r.roomId===data.roomId);
+                    console.log(ind);
+                    const newRoomData = {
+                        roomId : data?.roomId,
+                        roomName : newRooms[ind].roomName,
+                        messageId : newRooms[ind].messageId,
+                        messageText : data?.message,
+                        messageUser : data?.userName,
+                        messageTime : data?.timeStamp,
+                    }
+                    newRooms = [newRoomData,...newRooms];
+                    newRooms.splice(ind+1,1);
+                    
+                    return newRooms
+                }
+            )
+        }
+    },[lastJsonMessage])
     const handleJoinOldRoomExternal = async (roomId)=>{
         setError(null)
         const res = await axios.post(`${API_URL}/userActive`,{
